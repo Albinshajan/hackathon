@@ -3,42 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hackathon AI Foundation</title>
+    <title>Allu Hackathon AI</title>
     <style>
-        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 1rem; }
-        textarea { width: 100%; height: 100px; margin-bottom: 1rem; padding: 0.5rem; }
-        button { padding: 0.5rem 1rem; background: #0070f3; color: white; border: none; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        #output { margin-top: 1.5rem; padding: 1rem; background: #f4f4f4; border-radius: 4px; min-height: 50px;}
+        /* Base styles with the new vibrant gradient background */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* New, more distinct split-gradient: purple/pink left, blue right */
+            background: linear-gradient(to right, #ffe1f8 0%, #e1f2ff 100%);
+            color: #1e1e1e;
+        }
+
+        /* Subtle watermark in top-left */
+        .watermark {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-size: 0.8rem;
+            color: #1e1e1e;
+            opacity: 0.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Header UI */
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        .sparkle-icon {
+            width: 32px;
+            height: 32px;
+            margin-bottom: 1.5rem;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        /* Suggestions UI with adjusted padding/radius */
+        .suggestions-wrapper {
+            width: 100%;
+            margin-bottom: 2.5rem;
+        }
+        .suggestions-title {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .suggestions-grid {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .suggestion-card {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            padding: 1.2rem; /* Increased padding slightly */
+            border-radius: 8px; /* Slightly tighter radius */
+            font-size: 0.9rem;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+        .suggestion-card:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* Input Area with modified placeholder and icon */
+        .input-wrapper {
+            width: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        input[type="text"] { 
+            width: 100%; 
+            padding: 1.2rem 3rem 1.2rem 1.5rem; 
+            font-size: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 50px;
+            outline: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            background: white;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus {
+            border-color: #cbd5e1;
+        }
+        button { 
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
+        .send-icon {
+            width: 28px; /* Slightly larger icon */
+            height: 28px;
+            stroke: #94a3b8;
+            transition: stroke 0.2s;
+        }
+        button:hover:not(:disabled) .send-icon {
+            stroke: #3b82f6;
+        }
+
+        /* Hidden output box style */
+        #output { 
+            width: 100%;
+            margin-bottom: 2rem;
+            padding: 1.5rem; 
+            background: rgba(255, 255, 255, 0.6); 
+            border-radius: 12px; 
+            min-height: 50px;
+            display: none; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
 
-    <h1>AI Generator</h1>
-    <p>A minimal scaffold to test your AI logic.</p>
+    <div class="watermark">Allu-Version 1.0</div>
 
-    <textarea id="userInput" placeholder="Enter your prompt here..."></textarea>
-    <br>
-    <button id="generateBtn" onclick="runAI()">Generate</button>
+    <div class="container">
+        <div class="header">
+            <svg class="sparkle-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="#1e1e1e"/>
+            </svg>
+            <h1>Ask our AI anything</h1>
+        </div>
 
-    <div id="output">Results will appear here...</div>
+        <div id="output"></div>
+
+        <div class="suggestions-wrapper" id="suggestions">
+            <div class="suggestions-title">Suggestions on what to ask Our AI</div>
+            <div class="suggestions-grid">
+                <div class="suggestion-card" onclick="fillAndSubmit('What can I ask you to do?')">
+                    What can I ask you to do?
+                </div>
+                <div class="suggestion-card" onclick="fillAndSubmit('Which one of my projects is performing the best?')">
+                    Which one of my projects is performing the best?
+                </div>
+                <div class="suggestion-card" onclick="fillAndSubmit('What projects should I be concerned about right now?')">
+                    What projects should I be concerned about right now?
+                </div>
+            </div>
+        </div>
+
+        <div class="input-wrapper">
+            <input type="text" id="userInput" placeholder="Ask me anything about your projects,please wait a 30 sec if you're using it for the first time" onkeypress="handleEnter(event)">
+            <button id="generateBtn" onclick="runAI()">
+                <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+            </button>
+        </div>
+    </div>
 
     <script>
+        // Press Enter to submit
+        function handleEnter(event) {
+            if (event.key === 'Enter') {
+                runAI();
+            }
+        }
+
+        // Suggestions fill and submit immediately
+        function fillAndSubmit(text) {
+            document.getElementById('userInput').value = text;
+            runAI();
+        }
+
         async function runAI() {
             const inputField = document.getElementById('userInput');
             const outputDiv = document.getElementById('output');
             const btn = document.getElementById('generateBtn');
+            const suggestionsDiv = document.getElementById('suggestions');
 
             const text = inputField.value;
             if (!text) return;
 
             // UI State: Loading
             btn.disabled = true;
-            btn.innerText = "Thinking...";
-            outputDiv.innerText = "Calling backend...";
+            suggestionsDiv.style.display = 'none'; 
+            outputDiv.style.display = 'block'; 
+            outputDiv.innerText = "Thinking...";
 
             try {
-                // Call your FastAPI backend
+                // Call your FastAPI backend on Render
                const response = await fetch('https://hackathon-sipz.onrender.com/api/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -49,7 +232,7 @@
                 
                 const data = await response.json();
                 
-                // Display the result
+                // Display the AI result
                 outputDiv.innerText = data.result;
 
             } catch (error) {
@@ -58,7 +241,7 @@
             } finally {
                 // UI State: Reset
                 btn.disabled = false;
-                btn.innerText = "Generate";
+                inputField.value = ''; 
             }
         }
     </script>
